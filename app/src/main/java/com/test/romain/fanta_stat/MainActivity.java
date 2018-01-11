@@ -43,11 +43,25 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //check if bundle != null
+        if(savedInstanceState != null){
+
+        }else{
+            //premier onCreate()-->load savefile
+            start();
+        }
+
 
         b1 = findViewById(R.id.buttonFinal);
         ll = findViewById(R.id.layout1);
 
         b1.setOnClickListener(clickListenerBouton1);
+    }
+
+    @Override
+    public void onDestroy(){
+        saveDataApp(listCount);
+        super.onDestroy();
     }
 
     private View.OnClickListener clickListenerBouton1 = new View.OnClickListener() {
@@ -202,6 +216,14 @@ public class MainActivity extends Activity {
 
     }
 
+
+    /*
+    Fonction a appeler à la creation
+    check si le fichier existe
+    puis le lis ou le cree
+    première ligne nombre de stats sauvegardées
+
+     */
     public void start(){
         File file = new File(getExternalFilesDir(filepath), startFile);
         if(file.exists()){
@@ -216,8 +238,22 @@ public class MainActivity extends Activity {
                 BufferedReader br =
                         new BufferedReader(new InputStreamReader(in));
                 String strLine;
+                int nbLignes =0;
                 while ((strLine = br.readLine()) != null) {
+
                     myData = myData + strLine;
+                    //recupere le nb de stat sur la première ligne
+                    if(nbLignes==0){
+                        nbStat = Integer.parseInt(strLine);
+                    }else {
+                        //save data lignes suivantes
+                        //lignes : Name number
+                        String[] parts = strLine.split(" ");
+                        Count count = new Count(parts[0]);
+                        count.setNumber(Integer.parseInt(parts[1]));
+                        listCount.add(count);
+                    }
+                    nbLignes++;
                 }
                 in.close();
             } catch (IOException e) {
@@ -226,7 +262,7 @@ public class MainActivity extends Activity {
             //recuperer texte
         }
         else{
-            //creation du fichier
+            //creation du fichier avec 0 stats
             File myExternalFile;
             String myData = "0";
             myExternalFile = new File(getExternalFilesDir(filepath), startFile);
@@ -245,6 +281,13 @@ public class MainActivity extends Activity {
         }
     }
 
+
+    /*
+    Sauve les data à la destruction de l'app
+    ecrit tout dans le fichier de save
+    première ligne nb de stats
+    ensuite Name number\n
+     */
     public void saveDataApp(List<Count> list){
         File myExternalFile;
         myExternalFile = new File(getExternalFilesDir(filepath), startFile);
@@ -254,6 +297,7 @@ public class MainActivity extends Activity {
 
                 FileOutputStream fos = new FileOutputStream(myExternalFile);
                 fos.write((String.valueOf(list.size())+"\n").getBytes());//nombre d'elements
+                //boucle sur le nombre de stats
                 for(int i=0; i<= list.size(); i++){
                     fos.write((list.get(i).getName()+" ").getBytes());
                     fos.write((list.get(i).getNumber()+"\n").getBytes());
