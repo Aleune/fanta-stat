@@ -99,10 +99,10 @@ public class MainActivity extends Activity {
         @Override
         public void onClick(View v) {
 
-            int nb = v.getId()- 101;
+            int nb = ((int) v.getId()- 100)/2;
 
             listCount.get(nb).addNumber();
-            TextView myText = findViewById(v.getId()-1);
+            TextView myText = findViewById((int) v.getId()-1);
             myText.setText(String.valueOf(listCount.get(nb).getNumber()));
 
 
@@ -130,27 +130,28 @@ public class MainActivity extends Activity {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         for(int i=0; i<savedInstanceState.getInt("Nb_stats"); i++){
+
             Count count = new Count(savedInstanceState.getString("name_"+String.valueOf(i)));
 
             listCount.add(count);
 
-            LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater vi = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = vi.inflate(R.layout.template_view, null);
 
             // fill in any details dynamically here
             TextView textView = v.findViewById(R.id.templateText1);
             textView.setText(savedInstanceState.getString("name_"+String.valueOf(i)));
-            count.setName(savedInstanceState.getString("name_"+String.valueOf(i)));
+            //count.setName(savedInstanceState.getString("name_"+String.valueOf(i)));
 
             TextView textView2 = v.findViewById(R.id.templateText2);
             textView2.setText(String.valueOf(savedInstanceState.getInt("Stat_"+String.valueOf(i))));
             count.setNumber(savedInstanceState.getInt("Stat_"+String.valueOf(i)));
-            textView2.setId(99+i);
+            textView2.setId(99+2*i);
             count.setIdText2(R.id.templateText2);
 
 
             Button myButton = v.findViewById(R.id.magic_button);
-            myButton.setId(99+i+1);
+            myButton.setId(99+2*i+1);
             count.setIdButton(R.id.magic_button);
             myButton.setOnClickListener(onClickListenerAdd);
 
@@ -236,7 +237,7 @@ public class MainActivity extends Activity {
     public void saveDataApp(List<Count> list){
         File myExternalFile;
         myExternalFile = new File(getExternalFilesDir(filepath), startFile);
-        Log.d("YOLOOOOO", Boolean.toString(isExternalStorageWritable()));
+
         if (isExternalStorageWritable()){
             try {
 
@@ -264,12 +265,12 @@ public class MainActivity extends Activity {
 
     public void createStats(){
         for(int i=0; i<listCount.size(); i++){
-            createOneStat(listCount.get(i), i+1);
+            createOneStat(listCount.get(i), i);
         }
     }
 
     public void createOneStat(Count count){
-        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater vi = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = vi.inflate(R.layout.template_view, null);
 
         // fill in any details dynamically here
@@ -278,12 +279,13 @@ public class MainActivity extends Activity {
 
         TextView textView2 = v.findViewById(R.id.templateText2);
         textView2.setText(String.valueOf(count.getNumber()));
-        textView2.setId(99+listCount.size());
+        Log.d("YOLOOOOO", String.valueOf(99+2*listCount.size()));
+        textView2.setId(99+2*listCount.size()-1);
         count.setIdText2(R.id.templateText2);
 
 
         Button myButton = v.findViewById(R.id.magic_button);
-        myButton.setId(99+listCount.size()+1);
+        myButton.setId(99+2*listCount.size());
         count.setIdButton(R.id.magic_button);
         myButton.setOnClickListener(onClickListenerAdd);
 
@@ -294,7 +296,7 @@ public class MainActivity extends Activity {
 
     //to use for modifyng id
     public void createOneStat(Count count, int i){
-        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater vi = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = vi.inflate(R.layout.template_view, null);
 
         // fill in any details dynamically here
@@ -303,12 +305,12 @@ public class MainActivity extends Activity {
 
         TextView textView2 = v.findViewById(R.id.templateText2);
         textView2.setText(String.valueOf(count.getNumber()));
-        textView2.setId(99+i);
+        textView2.setId(99+2*i);
         count.setIdText2(R.id.templateText2);
 
 
         Button myButton = v.findViewById(R.id.magic_button);
-        myButton.setId(99+i+1);
+        myButton.setId(99+2*i+1);
         count.setIdButton(R.id.magic_button);
         myButton.setOnClickListener(onClickListenerAdd);
 
