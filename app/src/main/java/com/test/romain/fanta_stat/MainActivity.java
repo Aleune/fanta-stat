@@ -49,8 +49,8 @@ public class MainActivity extends Activity {
 
         }else{
             //premier onCreate()-->load savefile
-            Log.d("number", "test");
             start();
+            createStats();
         }
 
 
@@ -88,28 +88,7 @@ public class MainActivity extends Activity {
                 //createStat(strEditText); // creation des boutons
                 Count count = new Count(strEditText);
                 listCount.add(count);
-
-                LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View v = vi.inflate(R.layout.template_view, null);
-
-                // fill in any details dynamically here
-                TextView textView = v.findViewById(R.id.templateText1);
-                textView.setText(strEditText);
-
-                TextView textView2 = v.findViewById(R.id.templateText2);
-                textView2.setText(String.valueOf(count.getNumber()));
-                textView2.setId(99+listCount.size());
-                count.setIdText2(R.id.templateText2);
-                Log.d("myTAG", String.valueOf(R.id.templateText2));
-
-                Button myButton = v.findViewById(R.id.magic_button);
-                myButton.setId(99+listCount.size()+1);
-                count.setIdButton(R.id.magic_button);
-                myButton.setOnClickListener(onClickListenerAdd);
-
-                // insert into main view
-                ViewGroup insertPoint = (ViewGroup) findViewById(R.id.layout1);
-                insertPoint.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                createOneStat(count);
 
             }
         }
@@ -125,45 +104,6 @@ public class MainActivity extends Activity {
             listCount.get(nb).addNumber();
             TextView myText = findViewById(v.getId()-1);
             myText.setText(String.valueOf(listCount.get(nb).getNumber()));
-
-
-
-
-            //Save Fichier
-
-            /*File myExternalFile;
-            String myData = "";
-            myExternalFile = new File(getExternalFilesDir(filepath), filename);
-            Log.d("myTAGGGGG", getExternalFilesDir(filepath).toString());
-            if (isExternalStorageWritable()){
-                try {
-
-                    FileOutputStream fos = new FileOutputStream(myExternalFile);
-                    fos.write("test".getBytes());
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            try {
-                FileInputStream fis = new FileInputStream(myExternalFile);
-                DataInputStream in = new DataInputStream(fis);
-                BufferedReader br =
-                        new BufferedReader(new InputStreamReader(in));
-                String strLine;
-                while ((strLine = br.readLine()) != null) {
-                    myData = myData + strLine;
-                }
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            b1.setText(myData);*/
-
-
-
 
 
         }
@@ -320,6 +260,61 @@ public class MainActivity extends Activity {
             }
 
         }
+    }
+
+    public void createStats(){
+        for(int i=0; i<listCount.size(); i++){
+            createOneStat(listCount.get(i), i+1);
+        }
+    }
+
+    public void createOneStat(Count count){
+        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = vi.inflate(R.layout.template_view, null);
+
+        // fill in any details dynamically here
+        TextView textView = v.findViewById(R.id.templateText1);
+        textView.setText(count.getName());
+
+        TextView textView2 = v.findViewById(R.id.templateText2);
+        textView2.setText(String.valueOf(count.getNumber()));
+        textView2.setId(99+listCount.size());
+        count.setIdText2(R.id.templateText2);
+
+
+        Button myButton = v.findViewById(R.id.magic_button);
+        myButton.setId(99+listCount.size()+1);
+        count.setIdButton(R.id.magic_button);
+        myButton.setOnClickListener(onClickListenerAdd);
+
+        // insert into main view
+        ViewGroup insertPoint = (ViewGroup) findViewById(R.id.layout1);
+        insertPoint.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    //to use for modifyng id
+    public void createOneStat(Count count, int i){
+        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = vi.inflate(R.layout.template_view, null);
+
+        // fill in any details dynamically here
+        TextView textView = v.findViewById(R.id.templateText1);
+        textView.setText(count.getName());
+
+        TextView textView2 = v.findViewById(R.id.templateText2);
+        textView2.setText(String.valueOf(count.getNumber()));
+        textView2.setId(99+i);
+        count.setIdText2(R.id.templateText2);
+
+
+        Button myButton = v.findViewById(R.id.magic_button);
+        myButton.setId(99+i+1);
+        count.setIdButton(R.id.magic_button);
+        myButton.setOnClickListener(onClickListenerAdd);
+
+        // insert into main view
+        ViewGroup insertPoint = (ViewGroup) findViewById(R.id.layout1);
+        insertPoint.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
 }
