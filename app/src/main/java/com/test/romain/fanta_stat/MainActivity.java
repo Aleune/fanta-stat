@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
     private String filepath = "MyFileStorage";
     private List<View> mViews= new ArrayList<View>();
     private List<Count> listCount = new ArrayList<>();
+    public static String newline = System.getProperty("line.separator");
 
     LinearLayout ll = null;
 
@@ -48,6 +49,7 @@ public class MainActivity extends Activity {
 
         }else{
             //premier onCreate()-->load savefile
+            Log.d("number", "test");
             start();
         }
 
@@ -59,9 +61,10 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onDestroy(){
+    public void onStop(){
+
         saveDataApp(listCount);
-        super.onDestroy();
+        super.onStop();
     }
 
     private View.OnClickListener clickListenerBouton1 = new View.OnClickListener() {
@@ -72,6 +75,7 @@ public class MainActivity extends Activity {
             Intent secondeActivite = new Intent(MainActivity.this, SecondActivity.class);
 
             startActivityForResult(secondeActivite, 1);
+            //saveDataApp(listCount);
         }
     };
 
@@ -117,7 +121,7 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
 
             int nb = v.getId()- 101;
-            Log.d("myTAGGGGG", String.valueOf(nb));
+
             listCount.get(nb).addNumber();
             TextView myText = findViewById(v.getId()-1);
             myText.setText(String.valueOf(listCount.get(nb).getNumber()));
@@ -130,7 +134,7 @@ public class MainActivity extends Activity {
             /*File myExternalFile;
             String myData = "";
             myExternalFile = new File(getExternalFilesDir(filepath), filename);
-
+            Log.d("myTAGGGGG", getExternalFilesDir(filepath).toString());
             if (isExternalStorageWritable()){
                 try {
 
@@ -187,6 +191,7 @@ public class MainActivity extends Activity {
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         for(int i=0; i<savedInstanceState.getInt("Nb_stats"); i++){
             Count count = new Count(savedInstanceState.getString("name_"+String.valueOf(i)));
+
             listCount.add(count);
 
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -291,16 +296,23 @@ public class MainActivity extends Activity {
     public void saveDataApp(List<Count> list){
         File myExternalFile;
         myExternalFile = new File(getExternalFilesDir(filepath), startFile);
-
+        Log.d("YOLOOOOO", Boolean.toString(isExternalStorageWritable()));
         if (isExternalStorageWritable()){
             try {
 
                 FileOutputStream fos = new FileOutputStream(myExternalFile);
-                fos.write((String.valueOf(list.size())+"\n").getBytes());//nombre d'elements
+                fos.write((String.valueOf(list.size())+newline).getBytes());//nombre d'elements
                 //boucle sur le nombre de stats
-                for(int i=0; i<= list.size(); i++){
-                    fos.write((list.get(i).getName()+" ").getBytes());
-                    fos.write((list.get(i).getNumber()+"\n").getBytes());
+                for(int i=0; i< list.size(); i++){
+                    if(i==0){
+                        fos.write((list.get(i).getName()+" ").getBytes());
+                        fos.write(String.valueOf(list.get(i).getNumber()).getBytes());
+                    }else{
+                        fos.write((newline+list.get(i).getName()+" ").getBytes());
+                        Log.d("name", list.get(i).getName());
+                        fos.write(String.valueOf(list.get(i).getNumber()).getBytes());
+
+                    }
                 }
                 fos.close();
             } catch (IOException e) {

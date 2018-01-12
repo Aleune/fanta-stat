@@ -31,7 +31,7 @@ public class SecondActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("editTextValue", editText1.getText().toString() + " : ");
+                intent.putExtra("editTextValue", editText1.getText().toString());
                 setResult(RESULT_OK, intent);
                 finish();
             }
