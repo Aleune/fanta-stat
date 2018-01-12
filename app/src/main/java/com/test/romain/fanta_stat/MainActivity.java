@@ -14,6 +14,11 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -28,12 +33,12 @@ import java.util.List;
 public class MainActivity extends Activity {
 
     Button b1 = null;
-    private int idNumber = 100;
+    //private int idNumber = 100;
     private int nbStat = 0;
     private String startFile = "startFile.txt";
-    private String filename = "SampleFile.txt";
+    //private String filename = "SampleFile.txt";
     private String filepath = "MyFileStorage";
-    private List<View> mViews= new ArrayList<View>();
+    //private List<View> mViews= new ArrayList<View>();
     private List<Count> listCount = new ArrayList<>();
     public static String newline = System.getProperty("line.separator");
 
@@ -58,6 +63,31 @@ public class MainActivity extends Activity {
         ll = findViewById(R.id.layout1);
 
         b1.setOnClickListener(clickListenerBouton1);
+
+        //test chart
+        LineChart chart = (LineChart) findViewById(R.id.chart);
+
+        float mydata[][] = new float[2][50];
+        for(int i=0; i<50; i++){
+            mydata[1][i] = (float) Math.sin(i*0.1);
+            mydata[0][i] = i;
+        }
+
+
+        List<Entry> entries = new ArrayList<Entry>();
+
+        for (int i=0; i<mydata[0].length; i++) {
+
+            // turn your data into Entry objects
+            entries.add(new Entry(mydata[0][i], mydata[1][i]));
+        }
+        LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
+        dataSet.setDrawValues(false);
+        dataSet.setDrawCircles(false);
+        LineData lineData = new LineData(dataSet);
+        chart.setData(lineData);
+        chart.invalidate(); // refresh
+
     }
 
     @Override
