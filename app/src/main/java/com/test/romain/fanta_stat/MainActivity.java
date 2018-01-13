@@ -103,6 +103,12 @@ public class MainActivity extends Activity {
 
 
             Intent secondeActivite = new Intent(MainActivity.this, SecondActivity.class);
+            //give the list of stats name to the second activity
+            secondeActivite.putExtra("NumberOfNames", listCount.size());
+            for(int i=0; i<listCount.size(); i++){
+                secondeActivite.putExtra("name_"+i,listCount.get(i).getName());
+            }
+
 
             startActivityForResult(secondeActivite, 1);
             //saveDataApp(listCount);
@@ -117,6 +123,7 @@ public class MainActivity extends Activity {
 
                 //createStat(strEditText); // creation des boutons
                 Count count = new Count(strEditText);
+                count.setContext(this.getApplicationContext());
                 listCount.add(count);
                 createOneStat(count);
 
@@ -162,6 +169,8 @@ public class MainActivity extends Activity {
         for(int i=0; i<savedInstanceState.getInt("Nb_stats"); i++){
 
             Count count = new Count(savedInstanceState.getString("name_"+String.valueOf(i)));
+            //test
+            count.setContext(this.getApplicationContext());
 
             listCount.add(count);
 
@@ -226,6 +235,7 @@ public class MainActivity extends Activity {
                         //lignes : Name number
                         String[] parts = strLine.split(" ");
                         Count count = new Count(parts[0]);
+                        count.setContext(this.getApplicationContext());
                         count.setNumber(Integer.parseInt(parts[1]));
                         listCount.add(count);
                     }
@@ -348,5 +358,7 @@ public class MainActivity extends Activity {
         ViewGroup insertPoint = (ViewGroup) findViewById(R.id.layout1);
         insertPoint.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
+
+
 
 }

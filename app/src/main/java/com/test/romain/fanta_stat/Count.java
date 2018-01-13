@@ -1,6 +1,17 @@
 package com.test.romain.fanta_stat;
 
+import android.content.Context;
+
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by Romain on 10/01/2018.
@@ -11,11 +22,38 @@ public class Count {
     int number;
     ArrayList<String> liste;
     int idButton, idText1, idText2, idCheckBox;
+    Context context;
 
     public Count(String name){
         this.name = name;
         this.number = 0;
         liste = new ArrayList<>();
+        String filepath = "MyFileStorage";
+        String savefile = this.name + ".txt";
+
+        //create file here
+        //need to check if a file with this name is already here
+
+        /*File file = new File(context.getExternalFilesDir(filepath), savefile);
+        if(file.exists()){
+            //lecture du fichier
+        }
+        else{
+            File myExternalFile;
+            String myData = this.name+"\n";
+            myExternalFile = new File(context.getExternalFilesDir(filepath), savefile);
+
+
+            try {
+                FileOutputStream fos = new FileOutputStream(myExternalFile);
+                fos.write(myData.getBytes());
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }*/
+
     }
 
     public int getNumber() {
@@ -67,6 +105,16 @@ public class Count {
 
     public void setNumber(int number){
         this.number = number;
+    }
+
+    public void saveInFIle(){
+        //check is file is here
+        //ecrire a la fin la date et l'heure
+        Date currentTime = Calendar.getInstance().getTime();
+    }
+
+    public void setContext(Context context){
+        this.context = context;
     }
 
 }
