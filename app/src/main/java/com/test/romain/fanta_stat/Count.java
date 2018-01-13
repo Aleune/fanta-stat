@@ -1,14 +1,17 @@
 package com.test.romain.fanta_stat;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,18 +26,21 @@ public class Count {
     ArrayList<String> liste;
     int idButton, idText1, idText2, idCheckBox;
     Context context;
+    String filepath = "MyFileStorage";
+    String savefile;
 
-    public Count(String name){
+    public Count(String name, Context context){
         this.name = name;
         this.number = 0;
+        this.context = context;
         liste = new ArrayList<>();
-        String filepath = "MyFileStorage";
-        String savefile = this.name + ".txt";
+
+        this.savefile = this.name + ".txt";
 
         //create file here
         //need to check if a file with this name is already here
 
-        /*File file = new File(context.getExternalFilesDir(filepath), savefile);
+        File file = new File(context.getExternalFilesDir(filepath), savefile);
         if(file.exists()){
             //lecture du fichier
         }
@@ -52,7 +58,7 @@ public class Count {
                 e.printStackTrace();
             }
 
-        }*/
+        }
 
     }
 
@@ -111,10 +117,32 @@ public class Count {
         //check is file is here
         //ecrire a la fin la date et l'heure
         Date currentTime = Calendar.getInstance().getTime();
+        Log.d("name", currentTime.toString());
+
+        File file = new File(context.getExternalFilesDir(filepath), savefile);
+        if(file.exists()){
+
+            FileOutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(file, true);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+
+
+            try {
+                outputStreamWriter.append(currentTime.toString()+"\n");
+                outputStreamWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+
+
+        }
     }
 
-    public void setContext(Context context){
-        this.context = context;
-    }
 
 }

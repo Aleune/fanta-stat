@@ -122,8 +122,7 @@ public class MainActivity extends Activity {
                 String strEditText = data.getStringExtra("editTextValue");
 
                 //createStat(strEditText); // creation des boutons
-                Count count = new Count(strEditText);
-                count.setContext(this.getApplicationContext());
+                Count count = new Count(strEditText, getApplicationContext());
                 listCount.add(count);
                 createOneStat(count);
 
@@ -139,6 +138,7 @@ public class MainActivity extends Activity {
             int nb = ((int) v.getId()- 100)/2;
 
             listCount.get(nb).addNumber();
+            listCount.get(nb).saveInFIle();
             TextView myText = findViewById((int) v.getId()-1);
             myText.setText(String.valueOf(listCount.get(nb).getNumber()));
 
@@ -168,9 +168,8 @@ public class MainActivity extends Activity {
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         for(int i=0; i<savedInstanceState.getInt("Nb_stats"); i++){
 
-            Count count = new Count(savedInstanceState.getString("name_"+String.valueOf(i)));
-            //test
-            count.setContext(this.getApplicationContext());
+            Count count = new Count(savedInstanceState.getString("name_"+String.valueOf(i)), getApplicationContext());
+
 
             listCount.add(count);
 
@@ -234,8 +233,7 @@ public class MainActivity extends Activity {
                         //save data lignes suivantes
                         //lignes : Name number
                         String[] parts = strLine.split(" ");
-                        Count count = new Count(parts[0]);
-                        count.setContext(this.getApplicationContext());
+                        Count count = new Count(parts[0], getApplicationContext());
                         count.setNumber(Integer.parseInt(parts[1]));
                         listCount.add(count);
                     }
@@ -290,7 +288,7 @@ public class MainActivity extends Activity {
                         fos.write(String.valueOf(list.get(i).getNumber()).getBytes());
                     }else{
                         fos.write((newline+list.get(i).getName()+" ").getBytes());
-                        Log.d("name", list.get(i).getName());
+
                         fos.write(String.valueOf(list.get(i).getNumber()).getBytes());
 
                     }
