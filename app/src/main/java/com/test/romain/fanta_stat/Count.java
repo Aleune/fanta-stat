@@ -3,6 +3,10 @@ package com.test.romain.fanta_stat;
 import android.content.Context;
 import android.util.Log;
 
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.DataSet;
+import com.github.mikephil.charting.data.LineDataSet;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -28,12 +32,16 @@ public class Count {
     Context context;
     String filepath = "MyFileStorage";
     String savefile;
+    private long reference_timeStamp = 1515880450757L;
+    BarDataSet dataset;
+    long lastSaved;
 
     public Count(String name, Context context){
         this.name = name;
         this.number = 0;
         this.context = context;
         liste = new ArrayList<>();
+        this.dataset = null;
 
         this.savefile = this.name + ".txt";
 
@@ -116,8 +124,10 @@ public class Count {
     public void saveInFIle(){
         //check is file is here
         //ecrire a la fin la date et l'heure
-        Date currentTime = Calendar.getInstance().getTime();
-        Log.d("name", currentTime.toString());
+        Calendar c = Calendar.getInstance();
+        long currentTime = System.currentTimeMillis();
+        lastSaved = currentTime;
+        Log.d("name", String.valueOf(currentTime));
 
         File file = new File(context.getExternalFilesDir(filepath), savefile);
         if(file.exists()){
@@ -132,7 +142,7 @@ public class Count {
 
 
             try {
-                outputStreamWriter.append(currentTime.toString()+"\n");
+                outputStreamWriter.append(String.valueOf(currentTime)+"\n");
                 outputStreamWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -144,5 +154,15 @@ public class Count {
         }
     }
 
+    public long getLastSaved(){
+        return lastSaved;
+    }
 
+    public void setDataset(BarDataSet dataset) {
+        this.dataset = dataset;
+    }
+
+    public BarDataSet getDataSet(){
+        return this.dataset;
+    }
 }

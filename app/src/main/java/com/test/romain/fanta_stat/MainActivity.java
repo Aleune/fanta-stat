@@ -7,32 +7,42 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.CombinedChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.CombinedData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity {
+
+
+public class MainActivity extends Activity implements  com.github.mikephil.charting.listener.OnChartGestureListener {
 
     Button b1 = null;
+    CombinedChart chart = null;
     //private int idNumber = 100;
     private int nbStat = 0;
     private String startFile = "startFile.txt";
@@ -41,6 +51,13 @@ public class MainActivity extends Activity {
     //private List<View> mViews= new ArrayList<View>();
     private List<Count> listCount = new ArrayList<>();
     public static String newline = System.getProperty("line.separator");
+    private long reference_timeStamp = 1515880450757L;
+    private List<IBarDataSet> dataSetsBar = new ArrayList<>();
+    private List<ILineDataSet> dataSetsLine = new ArrayList<>();
+    private CombinedData data = new CombinedData();
+    //test
+
+
 
     LinearLayout ll = null;
 
@@ -65,8 +82,9 @@ public class MainActivity extends Activity {
         b1.setOnClickListener(clickListenerBouton1);
 
         //test chart
-        LineChart chart = (LineChart) findViewById(R.id.chart);
+        chart = findViewById(R.id.chart);
 
+        //test of sinus data
         float mydata[][] = new float[2][50];
         for(int i=0; i<50; i++){
             mydata[1][i] = (float) Math.sin(i*0.1);
@@ -74,19 +92,37 @@ public class MainActivity extends Activity {
         }
 
 
-        List<Entry> entries = new ArrayList<Entry>();
+        List<Entry> entries = new ArrayList<>();
 
         for (int i=0; i<mydata[0].length; i++) {
 
             // turn your data into Entry objects
             entries.add(new Entry(mydata[0][i], mydata[1][i]));
         }
+        //test combiend data
+
+
+
+
+
+
         LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
         dataSet.setDrawValues(false);
         dataSet.setDrawCircles(false);
-        LineData lineData = new LineData(dataSet);
-        chart.setData(lineData);
+        dataSetsLine.add(dataSet);
+        LineData lineData = new LineData(dataSetsLine);
+
+
+        //data.setData(barData());
+        //ajoute le sinus
+        data.setData(lineData);
+        //data.setData(barData());
+
+        chart.setData(data);
         chart.invalidate(); // refresh
+
+
+        chart.setOnChartGestureListener(this);
 
     }
 
@@ -126,11 +162,12 @@ public class MainActivity extends Activity {
                 listCount.add(count);
                 createOneStat(count);
 
+
             }
         }
     }
 
-
+    /*Listener for adding one to the stats, refresh chart*/
     private View.OnClickListener onClickListenerAdd = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -142,6 +179,32 @@ public class MainActivity extends Activity {
             TextView myText = findViewById((int) v.getId()-1);
             myText.setText(String.valueOf(listCount.get(nb).getNumber()));
 
+            //Ajouter au graphe
+
+            if(listCount.get(nb).getNumber()==1){
+                //create a dataset
+                //Entry entrie = new Entry(listCount.get(nb).getLastSaved(), 1) ;
+                BarEntry entrie = new BarEntry(5, 1) ;
+                ArrayList<BarEntry> entryList = new ArrayList<>();
+                entryList.add(entrie);
+                BarDataSet dataSet = new BarDataSet(entryList, "Label"); // add entries to dataset
+                listCount.get(nb).setDataset(dataSet);
+
+
+                dataSetsBar.add(dataSet);
+
+                BarData barData = new BarData(dataSet);
+                data.setData(barData);
+                chart.setData(data);
+                chart.invalidate(); // refresh*//*
+            }else{
+                //listCount.get(nb).getDataSet().addEntry(new Entry(listCount.get(nb).getLastSaved(),1 ));
+                listCount.get(nb).getDataSet().addEntry(new BarEntry(15,1 ));
+            }
+
+            chart.notifyDataSetChanged();
+            chart.invalidate();
+
 
         }
     };
@@ -149,10 +212,7 @@ public class MainActivity extends Activity {
     /* Checks if external storage is available for read and write */
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 
     @Override
@@ -353,10 +413,93 @@ public class MainActivity extends Activity {
         myButton.setOnClickListener(onClickListenerAdd);
 
         // insert into main view
-        ViewGroup insertPoint = (ViewGroup) findViewById(R.id.layout1);
+        ViewGroup insertPoint = findViewById(R.id.layout1);
         insertPoint.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
 
+    @Override
+    public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
 
+    }
+
+    @Override
+    public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+    }
+
+    @Override
+    public void onChartLongPressed(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartDoubleTapped(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartSingleTapped(MotionEvent me) {
+
+    }
+
+    @Override
+    public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+    }
+
+    @Override
+    public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+
+    }
+
+    @Override
+    public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
+    private ArrayList<String> getXAxisValues() {
+            ArrayList<String> labels = new ArrayList<>();
+            labels.add("JAN");
+            labels.add("FEB");
+            labels.add("MAR");
+            labels.add("APR");
+            labels.add("MAY");
+            labels.add("JUN");
+        return labels;
+    }
+
+    public LineData lineData(){
+            ArrayList<Entry> line = new ArrayList<>();
+            line.add(new Entry(2f, 0));
+            line.add(new Entry(4f, 1));
+            line.add(new Entry(3f, 2));
+            line.add(new Entry(6f, 3));
+            line.add(new Entry(9f, 4));
+            line.add(new Entry(4f, 5));
+       LineDataSet lineDataSet = new LineDataSet(line, "Brand 2");
+                lineDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        LineData lineData = new LineData(lineDataSet);
+       return lineData;
+    }
+    // this method is used to create data for Bar graph
+    public BarData barData(){
+       ArrayList<BarEntry> group1 = new ArrayList<>();
+                group1.add(new BarEntry(4f, 0));
+                group1.add(new BarEntry(8f, 1));
+                group1.add(new BarEntry(6f, 2));
+                group1.add(new BarEntry(12f, 3));
+                group1.add(new BarEntry(18f, 4));
+                group1.add(new BarEntry(9f, 5));
+       BarDataSet barDataSet = new BarDataSet(group1, "Brand 1");
+                //barDataSet.setColor(Color.rgb(0, 155, 0));
+                barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                BarData barData = new BarData(barDataSet);
+        return barData;
+   }
 }
