@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.CombinedChart;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -26,6 +27,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -93,11 +95,12 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
 
         List<Entry> entries = new ArrayList<>();
-
-        for (int i=0; i<mydata[0].length; i++) {
+        //mydata[0].length
+        for (int i=0; i<1; i++) {
 
             // turn your data into Entry objects
-            entries.add(new Entry(mydata[0][i], mydata[1][i]));
+            //entries.add(new Entry(mydata[0][i], mydata[1][i]));
+            entries.add(new Entry(0,0));
         }
         //test combiend data
 
@@ -124,6 +127,14 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
         chart.setOnChartGestureListener(this);
 
+        XAxis x = chart.getXAxis();
+        x.setAxisMinimum(0);
+        x.setAxisMaximum(24);
+        HourAxisValueFormatter xAxisFormatter = new HourAxisValueFormatter();
+
+        x.setValueFormatter(xAxisFormatter);
+        //chart.setVisibleXRangeMaximum(5);
+
     }
 
     @Override
@@ -133,6 +144,7 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
         super.onStop();
     }
 
+    /* Bouton principal, ajoute les stats*/
     private View.OnClickListener clickListenerBouton1 = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -151,6 +163,7 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
         }
     };
 
+    /* appelé a la fin de la seconde activite, creation des stats*/
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
@@ -183,27 +196,35 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
             if(listCount.get(nb).getNumber()==1){
                 //create a dataset
-                //Entry entrie = new Entry(listCount.get(nb).getLastSaved(), 1) ;
-                BarEntry entrie = new BarEntry(5, 1) ;
+
+                BarEntry entrie = new BarEntry(listCount.get(nb).getLastSaved().getHour()+0.01f*listCount.get(nb).getLastSaved().getMinutes()+1, 1) ;
+                //BarEntry entrie = new BarEntry(1, 1) ;
                 ArrayList<BarEntry> entryList = new ArrayList<>();
                 entryList.add(entrie);
                 BarDataSet dataSet = new BarDataSet(entryList, "Label"); // add entries to dataset
-                listCount.get(nb).setDataset(dataSet);
+                //listCount.get(nb).setDataset(dataSet);
 
 
                 dataSetsBar.add(dataSet);
 
-                BarData barData = new BarData(dataSet);
+                BarData barData = new BarData(dataSetsBar);
                 data.setData(barData);
                 chart.setData(data);
-                chart.invalidate(); // refresh*//*
+
+                XAxis x = chart.getXAxis();
+
+
             }else{
-                //listCount.get(nb).getDataSet().addEntry(new Entry(listCount.get(nb).getLastSaved(),1 ));
-                listCount.get(nb).getDataSet().addEntry(new BarEntry(15,1 ));
+
+                dataSetsBar.get(nb).addEntry(new BarEntry(listCount.get(nb).getLastSaved().getHour()+0.01f*listCount.get(nb).getLastSaved().getMinutes()+1,1 ));
+                BarData barData = new BarData(dataSetsBar);
+                data.setData(barData);
+
             }
 
             chart.notifyDataSetChanged();
             chart.invalidate();
+
 
 
         }
@@ -223,6 +244,8 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
             savedInstanceState.putString("name_"+String.valueOf(i), listCount.get(i).getName());
         }
     }
+
+
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -377,7 +400,7 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
         TextView textView2 = v.findViewById(R.id.templateText2);
         textView2.setText(String.valueOf(count.getNumber()));
-        Log.d("YOLOOOOO", String.valueOf(99+2*listCount.size()));
+
         textView2.setId(99+2*listCount.size()-1);
         count.setIdText2(R.id.templateText2);
 
