@@ -51,7 +51,7 @@ public class HourAxisValueFormatter implements IAxisValueFormatter
 
         // Convert timestamp to hour:minute
         return getHour(originalTimestamp);*/
-        Log.d("TEST", Float.toString(value));
+        //Log.d("TEST", Float.toString(value));
         float fraction = value%1*60f;
         int frac = (int) fraction;
         int integ = (int) value;

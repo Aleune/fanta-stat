@@ -1,5 +1,6 @@
 package com.test.romain.fanta_stat;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,11 +12,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -37,6 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -57,6 +63,8 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
     private List<IBarDataSet> dataSetsBar = new ArrayList<>();
     private List<ILineDataSet> dataSetsLine = new ArrayList<>();
     private CombinedData data = new CombinedData();
+
+    private ArrayList<Integer> saveIndex = new ArrayList<>();
     //test
 
 
@@ -73,6 +81,7 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
         }else{
             //premier onCreate()-->load savefile
+            //l'application est demarée
             start();
             createStats();
         }
@@ -128,6 +137,8 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
         chart.setOnChartGestureListener(this);
 
         XAxis x = chart.getXAxis();
+        YAxis y = chart.getAxisLeft();
+        y.setAxisMinimum(0);
         x.setAxisMinimum(0);
         x.setAxisMaximum(24);
         HourAxisValueFormatter xAxisFormatter = new HourAxisValueFormatter();
@@ -140,7 +151,7 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
     @Override
     public void onStop(){
 
-        saveDataApp(listCount);
+        //saveDataApp(listCount);
         super.onStop();
     }
 
@@ -187,6 +198,16 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
             int nb = ((int) v.getId()- 100)/2;
 
+            //si le nomnbre vaut zero et passe a un on insere le bon indice
+            // on compte le nombre de stats avec 0 (indice -2)
+            if(listCount.get(nb).getNumber() == 0){
+                int nbStatZero=0;
+                for(int i=0; i<saveIndex.size(); i++){
+                    if(saveIndex.get(i) == -2) nbStatZero++;
+                }
+                saveIndex.set(nb, saveIndex.size()-nbStatZero);
+            }
+
             listCount.get(nb).addNumber();
             listCount.get(nb).saveInFIle();
             TextView myText = findViewById((int) v.getId()-1);
@@ -211,7 +232,6 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
                 data.setData(barData);
                 chart.setData(data);
 
-                XAxis x = chart.getXAxis();
 
 
             }else{
@@ -227,6 +247,78 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
 
 
+        }
+    };
+
+    //listener for the checkBox
+    private OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener() {
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            @SuppressLint("ResourceType") int nb = buttonView.getId()-500;
+            Log.d("nb", String.valueOf(nb));
+            //ne fait rien si la stat vaut 0
+            if(listCount.get(nb).getNumber() !=0 ){
+                //la case a été cochée, on affiche (on recree)
+                if (isChecked){
+
+
+                    listCount.get(nb).setChecked(true);
+                    /****Recreation du graphe quand la checkBox est cochee****/
+                    Date today = new Date(Calendar.getInstance().getTime().toString());
+                    ArrayList<Date> liste = listCount.get(nb).findByDay(today.getDayNumber(), today.getYear(), today.getMonth());
+                    ArrayList<BarEntry> entryList = new ArrayList<>();
+
+                    for(Date date : liste){
+                        entryList.add(new BarEntry(date.getHour()+0.01f*date.getMinutes()+1,1 ));
+                    }
+
+                    BarDataSet dataSet = new BarDataSet(entryList, "Label"); // add entries to dataset
+
+                    dataSetsBar.add(dataSet);
+                    BarData barData = new BarData(dataSetsBar);
+                    data.setData(barData);
+                    chart.setData(data);
+                    chart.notifyDataSetChanged();
+                    chart.invalidate();
+
+
+                    /***Gestion des indices necessaires pour afficher/cacher***/
+                    //gestions indices
+                    //pas uniquement se mettre a la derniere place mais aussi regarder les non checked (-1)
+                    int nbMoins = 0;
+                    for(int i=0; i<saveIndex.size(); i++){
+                        if(saveIndex.get(i) == -1 || saveIndex.get(i) == -2){
+                            nbMoins ++;
+                        }
+                    }
+                    saveIndex.set(nb, saveIndex.size()-nbMoins);
+
+
+
+                }else {
+
+                    /***Destruction des graphes quand la checkBox est decochee***/
+                    listCount.get(nb).setChecked(false);
+                    //hide dataset
+                    dataSetsBar.remove(dataSetsBar.get(saveIndex.get(nb)));
+                    BarData barData = new BarData(dataSetsBar);
+                    data.setData(barData);
+
+                    chart.notifyDataSetChanged();
+                    chart.invalidate();
+
+                    /***Gestion des indices necessaires pour afficher/cacher***/
+                    /** Indices : -2 stat vaut 0, -1 case decochee **/
+                    saveIndex.set(nb, -1);
+                    for(int i=nb; i<saveIndex.size(); i++){
+                        if(saveIndex.get(i)>nb && saveIndex.get(i) != -1 && saveIndex.get(i)!= -2){
+                            saveIndex.set(i, saveIndex.get(i)-1);
+                        }
+                    }
+
+                }
+            }
         }
     };
 
@@ -276,6 +368,10 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
             count.setIdButton(R.id.magic_button);
             myButton.setOnClickListener(onClickListenerAdd);
 
+            CheckBox checkBox = v.findViewById(R.id.check);
+            checkBox.setId(500+i);
+            checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
+
             // insert into main view
             ViewGroup insertPoint = (ViewGroup) findViewById(R.id.layout1);
             insertPoint.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -291,6 +387,8 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
     première ligne nombre de stats sauvegardées
 
      */
+
+    /*recupere les données dans le fichier ou le cree*/
     public void start(){
         File file = new File(getExternalFilesDir(filepath), startFile);
         if(file.exists()){
@@ -384,6 +482,7 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
         }
     }
 
+    /*creation des stats apres demarage de l'app*/
     public void createStats(){
         for(int i=0; i<listCount.size(); i++){
             createOneStat(listCount.get(i), i);
@@ -404,11 +503,17 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
         textView2.setId(99+2*listCount.size()-1);
         count.setIdText2(R.id.templateText2);
 
+        CheckBox checkBox = v.findViewById(R.id.check);
+        checkBox.setId(500+listCount.size()-1);
+
 
         Button myButton = v.findViewById(R.id.magic_button);
         myButton.setId(99+2*listCount.size());
         count.setIdButton(R.id.magic_button);
         myButton.setOnClickListener(onClickListenerAdd);
+
+        checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
+        saveIndex.add(-2);
 
         // insert into main view
         ViewGroup insertPoint = (ViewGroup) findViewById(R.id.layout1);
@@ -434,6 +539,12 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
         myButton.setId(99+2*i+1);
         count.setIdButton(R.id.magic_button);
         myButton.setOnClickListener(onClickListenerAdd);
+
+        CheckBox checkBox = v.findViewById(R.id.check);
+        checkBox.setId(500+i);
+
+        checkBox.setOnCheckedChangeListener(onCheckedChangeListener);
+        saveIndex.add(-2);
 
         // insert into main view
         ViewGroup insertPoint = findViewById(R.id.layout1);

@@ -15,8 +15,10 @@ public class Date {
     private int dayNumber;
     private int minutes;
     private int seconds;
+    private String toStr;
 
     Date(String date){
+        this.toStr = date;
         Log.d("TETTTT", date.toString());
         String[] splitDate = date.split(" ");
         this.day = splitDate[0];
@@ -89,5 +91,9 @@ public class Date {
 
     public void setDayNumber(int dayNumber) {
         this.dayNumber = dayNumber;
+    }
+
+    public String toString(){
+        return toStr;
     }
 }

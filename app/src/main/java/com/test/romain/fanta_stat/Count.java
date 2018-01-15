@@ -29,6 +29,7 @@ public class Count {
     private long reference_timeStamp = 1515880450757L;
     private Date lastSaved;
     private ArrayList<Date> dates = new ArrayList<>();
+    private boolean checked;
 
     Count(String name, Context context){
         this.name = name;
@@ -36,6 +37,7 @@ public class Count {
         this.context = context;
         liste = new ArrayList<>();
         //this.dataset = null;
+        this.checked = false;
 
         this.savefile = this.name + ".txt";
 
@@ -170,7 +172,7 @@ public class Count {
     public ArrayList<Date> findByDay(int day, int year, String month){
         ArrayList<Date> listD = new ArrayList<>();
         for(Date date : dates){
-            if(date.getYear() == year && date.getMonth() == month && date.getDayNumber() == day){
+            if(date.getYear() == year && date.getMonth().equals(month) && date.getDayNumber() == day){
                 listD.add(date);
             }
         }
@@ -178,4 +180,11 @@ public class Count {
     }
 
 
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
+    }
 }
