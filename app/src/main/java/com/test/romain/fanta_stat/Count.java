@@ -37,7 +37,7 @@ public class Count {
         this.context = context;
         liste = new ArrayList<>();
         //this.dataset = null;
-        this.checked = false;
+        this.checked = true;
 
         this.savefile = this.name + ".txt";
 

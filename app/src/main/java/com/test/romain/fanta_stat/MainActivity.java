@@ -201,12 +201,17 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
             //si le nomnbre vaut zero et passe a un on insere le bon indice
             // on compte le nombre de stats avec 0 (indice -2)
             if(listCount.get(nb).getNumber() == 0){
+                Log.d("testavant+",String.valueOf(saveIndex.get(nb)));
                 int nbStatZero=0;
                 for(int i=0; i<saveIndex.size(); i++){
-                    if(saveIndex.get(i) == -2) nbStatZero++;
+                    if(saveIndex.get(i) == -2 || saveIndex.get(i) == -1) nbStatZero++;
                 }
                 saveIndex.set(nb, saveIndex.size()-nbStatZero);
+                if(!listCount.get(nb).isChecked()) saveIndex.set(nb, -1);
             }
+            //if saving index unchecked --> -1
+
+            Log.d("testavant-",String.valueOf(saveIndex.get(nb)));
 
             listCount.get(nb).addNumber();
             listCount.get(nb).saveInFIle();
@@ -214,39 +219,37 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
             myText.setText(String.valueOf(listCount.get(nb).getNumber()));
 
             //Ajouter au graphe
+            if(listCount.get(nb).isChecked()){
+                if(listCount.get(nb).getNumber()==1){
+                    //create a dataset
 
-            if(listCount.get(nb).getNumber()==1){
-                //create a dataset
-
-                BarEntry entrie = new BarEntry(listCount.get(nb).getLastSaved().getHour()+0.01f*listCount.get(nb).getLastSaved().getMinutes()+1, 1) ;
-                //BarEntry entrie = new BarEntry(1, 1) ;
-                ArrayList<BarEntry> entryList = new ArrayList<>();
-                entryList.add(entrie);
-                BarDataSet dataSet = new BarDataSet(entryList, "Label"); // add entries to dataset
-                //listCount.get(nb).setDataset(dataSet);
-
-
-                dataSetsBar.add(dataSet);
-
-                BarData barData = new BarData(dataSetsBar);
-                data.setData(barData);
-                chart.setData(data);
+                    BarEntry entrie = new BarEntry(listCount.get(nb).getLastSaved().getHour()+0.01f*listCount.get(nb).getLastSaved().getMinutes()+1, 1) ;
+                    //BarEntry entrie = new BarEntry(1, 1) ;
+                    ArrayList<BarEntry> entryList = new ArrayList<>();
+                    entryList.add(entrie);
+                    BarDataSet dataSet = new BarDataSet(entryList, "Label"); // add entries to dataset
+                    //listCount.get(nb).setDataset(dataSet);
 
 
+                    dataSetsBar.add(dataSet);
 
-            }else{
+                    BarData barData = new BarData(dataSetsBar);
+                    data.setData(barData);
+                    chart.setData(data);
 
-                dataSetsBar.get(nb).addEntry(new BarEntry(listCount.get(nb).getLastSaved().getHour()+0.01f*listCount.get(nb).getLastSaved().getMinutes()+1,1 ));
-                BarData barData = new BarData(dataSetsBar);
-                data.setData(barData);
 
+
+                }else{
+
+                    dataSetsBar.get(nb).addEntry(new BarEntry(listCount.get(nb).getLastSaved().getHour()+0.01f*listCount.get(nb).getLastSaved().getMinutes()+1,1 ));
+                    BarData barData = new BarData(dataSetsBar);
+                    data.setData(barData);
+
+                }
+
+                chart.notifyDataSetChanged();
+                chart.invalidate();
             }
-
-            chart.notifyDataSetChanged();
-            chart.invalidate();
-
-
-
         }
     };
 
@@ -261,8 +264,8 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
             if(listCount.get(nb).getNumber() !=0 ){
                 //la case a été cochée, on affiche (on recree)
                 if (isChecked){
-
-
+                    Log.d("COCHE", nb+"");
+                    Log.d("ON_testavant",String.valueOf(saveIndex.get(nb)));
                     listCount.get(nb).setChecked(true);
                     /****Recreation du graphe quand la checkBox est cochee****/
                     Date today = new Date(Calendar.getInstance().getTime().toString());
@@ -292,13 +295,18 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
                             nbMoins ++;
                         }
                     }
+                    //if(nbMoins == 0 ) saveIndex.set(nb, saveIndex.size()-1);
                     saveIndex.set(nb, saveIndex.size()-nbMoins);
 
 
+                    Log.d("nbMoins",String.valueOf(nbMoins));
+                    Log.d("ON_testapres",String.valueOf(saveIndex.get(nb)));
 
                 }else {
 
                     /***Destruction des graphes quand la checkBox est decochee***/
+                    Log.d("DECOCHE", nb+"");
+                    Log.d("OFF_testavant",String.valueOf(saveIndex.get(nb)));
                     listCount.get(nb).setChecked(false);
                     //hide dataset
                     dataSetsBar.remove(dataSetsBar.get(saveIndex.get(nb)));
@@ -310,13 +318,26 @@ public class MainActivity extends Activity implements  com.github.mikephil.chart
 
                     /***Gestion des indices necessaires pour afficher/cacher***/
                     /** Indices : -2 stat vaut 0, -1 case decochee **/
-                    saveIndex.set(nb, -1);
-                    for(int i=nb; i<saveIndex.size(); i++){
-                        if(saveIndex.get(i)>nb && saveIndex.get(i) != -1 && saveIndex.get(i)!= -2){
+
+                    for(int i=0; i<saveIndex.size(); i++){
+                        Log.d("destr_av nb", i + " " + saveIndex.get(i));
+                        if(saveIndex.get(i)>saveIndex.get(nb) && saveIndex.get(i) != -1 && saveIndex.get(i)!= -2){
                             saveIndex.set(i, saveIndex.get(i)-1);
                         }
+                        Log.d("destr_apres nb", i + " " + saveIndex.get(i));
                     }
+                    saveIndex.set(nb, -1);
 
+                    Log.d("OFF_testapres",String.valueOf(saveIndex.get(nb)));
+
+                }
+            }else{
+                if(isChecked){
+                    listCount.get(nb).setChecked(true);
+                    Log.d("COCHE", nb+"");
+                }else{
+                    listCount.get(nb).setChecked(false);
+                    Log.d("DECOCHE", nb+"");
                 }
             }
         }
